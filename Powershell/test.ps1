@@ -7,6 +7,6 @@ if ($test = 2) {
 else {
     Write-Host "Det er ikke sandt"
 }
-elseif ($test = 10) {
+else if ($test = 10) {
     Write-Host "Det er 10 i tal"
 }
