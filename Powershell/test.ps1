@@ -1,6 +1,6 @@
 $test = 10
 
-if ($test = 2) {
+if ($test = 20) {
     Write-Host "Det er sandt"
 
 }
