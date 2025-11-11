@@ -1,5 +1,5 @@
 $winsrv01 = "10.101.59.66"
-$winsrv02 = "10.101.7.6"
+#$winsrv02 = "10.101.7.6"
 $PW = Get-Credential
 
 $FileSpecs="{$_.Free/1GB}, {$_.Used/1GB}, Root, PSComputerName, Name, Description"
