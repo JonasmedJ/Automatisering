@@ -5,6 +5,5 @@ if ($test = 0) {
 
 }
 elseif ($test = 10) {
-    Write-Host "Det er 10 i tal"
+    Write-Host "Det er 1 i tal"
 }
-
