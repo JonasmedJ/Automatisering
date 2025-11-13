@@ -9,5 +9,5 @@ $StorageFile="C:\Windows\checkdrive_remote_$((Get-Date).ToString("dd_MM_yyyy")).
 Invoke-Command -ComputerName $winsrv01 -Credential $PW -ScriptBlock {
     Get-PSDrive | 
     Select-Object $FileSpecs |
-    Export-Csv -path $StorageFile -Encoding utf8 -NoTypeInformation
+    Export-Csv -path $Using:StorageFile -Encoding utf8 -NoTypeInformation
 }
