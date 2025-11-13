@@ -7,7 +7,7 @@ $ADUsers = Import-csv $CSV -Delimiter ","
 
 # Import-Module ActiveDirectory
 
-Start-Transcript -path $Logfile -NoClobber
+Start-Transcript -path $Logfile
 
 Invoke-Command -ComputerName $winsrv01 -Credential $PW -ScriptBlock {
     $Using:ADUsers | Format-Table
@@ -32,25 +32,34 @@ Invoke-Command -ComputerName $winsrv01 -Credential $PW -ScriptBlock {
                 New-ADUser @UserParams
 
                 Write-Host "The User $($User.SamAccountName) is created"
-
+                
+                # find groups in CSV file
                 if ($User.Groups) {
+                    # Define how groups are set up in CSV
                     $Groups = $User.Groups -split ";"
+                    # Loop in case mulitple groups are per user, keep running if more than 1 group
                     foreach ($Group in $Groups){
                         try {
+                            # Add user to group, with $Group identity - Trim removes unused space
                             Add-ADGroupMember -Identity $Group.Trim() -Members $User.SamAccountName
-                            Wrist-Host " Added $($User.SamAccountName) to Group $Group"
+                            # Display confirmation message
+                            Write-Output " Added $($User.SamAccountName) to Group $Group"
                         }
+                        # If add to group fails, display error message
                         catch {
-                            Wrist-Host " Failed to add $($User.SamAccountName) to Group $Group"
+                            Write-Output " Failed to add $($User.SamAccountName) to Group $Group"
                         }
                     }
                 }
             }
         }
         catch {
-            Write-host "Failed to create user $($User.SamAccountName) - $_"
+            # If user fails to be created, display error message
+            Write-Output "Failed to create user $($User.SamAccountName) - $_"
         }
     }
 }
+
+
 
 Stop-Transcript
