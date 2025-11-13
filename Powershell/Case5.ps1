@@ -10,10 +10,14 @@ $ADUsers = Import-csv $CSV -Delimiter ","
 Start-Transcript -path $Logfile
 
 Invoke-Command -ComputerName $winsrv01 -Credential $PW -ScriptBlock {
-    $Using:ADUsers | Format-Table
+    $ADUsers = $Using:ADUsers
+
+    $ADUsers | Format-Table
+    
     foreach ($User in $ADUsers) {
         try {
             $UserParams = @{
+		Name			= "$($User.GivenName) $($User.Surname)"
                 SamAccountName          = $User.SamAccountName
                 GivenName               = $User.GivenName
                 SurName                 = $User.Surname
@@ -24,8 +28,9 @@ Invoke-Command -ComputerName $winsrv01 -Credential $PW -ScriptBlock {
                 ChangePasswordAtLogon   = $True
                 Enabled                 = $True
             }
-
+            # Filter out users based on SamAccountName
             if (Get-Aduser -Filter "SamAccountName -eq '$($User.SamAccountName)'") {
+                # Display error in case user already exists
                 Write-Host "A user with username $($User.SamAccountName) already exists"
             }
             else {
