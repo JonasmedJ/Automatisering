@@ -17,7 +17,7 @@ Invoke-Command -ComputerName $winsrv01 -Credential $PW -ScriptBlock {
     foreach ($User in $ADUsers) {
         try {
             $UserParams = @{
-		Name			= "$($User.GivenName) $($User.Surname)"
+		        Name		        	= "$($User.GivenName) $($User.Surname)"
                 SamAccountName          = $User.SamAccountName
                 GivenName               = $User.GivenName
                 SurName                 = $User.Surname
