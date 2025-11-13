@@ -43,11 +43,11 @@ Invoke-Command -ComputerName $winsrv01 -Credential $PW -ScriptBlock {
                             # Add user to group, with $Group identity - Trim removes unused space
                             Add-ADGroupMember -Identity $Group.Trim() -Members $User.SamAccountName
                             # Display confirmation message
-                            Write-Output " Added $($User.SamAccountName) to Group $Group"
+                            Write-Host " Added $($User.SamAccountName) to Group $Group"
                         }
                         # If add to group fails, display error message
                         catch {
-                            Write-Output " Failed to add $($User.SamAccountName) to Group $Group"
+                            Write-Host " Failed to add $($User.SamAccountName) to Group $Group"
                         }
                     }
                 }
@@ -55,11 +55,9 @@ Invoke-Command -ComputerName $winsrv01 -Credential $PW -ScriptBlock {
         }
         catch {
             # If user fails to be created, display error message
-            Write-Output "Failed to create user $($User.SamAccountName) - $_"
+            Write-Host "Failed to create user $($User.SamAccountName) - $_"
         }
     }
 }
-
-
 
 Stop-Transcript
