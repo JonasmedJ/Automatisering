@@ -1,4 +1,4 @@
-$test = 10
+# $test = 10
 
 if ($test = 0) {
     Write-Host "Det er sandt"
