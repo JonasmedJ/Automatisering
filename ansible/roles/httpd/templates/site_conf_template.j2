@@ -1,0 +1,22 @@
+<VirtualHost *:{{ httpd_domain_port }}>
+        ServerName {{ httpd_domain_name }}
+        ServerAdmin {{ httpd_domain_admin }}@{{ httpd_domain_name }}
+        DocumentRoot /var/www/sub-domains/{{ httpd_domain_name }}/html
+        DirectoryIndex index.php index.htm index.html
+        Alias /icons/ /var/www/icons/
+        # ScriptAlias /cgi-bin/ /var/www/sub-domains/{{ httpd_domain_name }}/cgi-bin/
+
+    CustomLog "/var/log/httpd/{{ httpd_domain_name }}-access_log" combined
+    ErrorLog  "/var/log/httpd/{{ httpd_domain_name }}-error_log"
+
+        <Directory /var/www/sub-domains/{{ httpd_domain_name }}/html>
+                Options -ExecCGI -Indexes
+                AllowOverride All
+
+                Order deny,allow
+                Deny from all
+                Allow from all
+
+                Satisfy all
+        </Directory>
+</VirtualHost>

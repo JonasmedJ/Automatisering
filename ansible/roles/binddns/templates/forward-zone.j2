@@ -1,0 +1,16 @@
+$TTL 86400
+@ IN SOA dns.{{ binddns_dns_domain }}. admin.{{ binddns_dns_domain }}. (
+    {{ binddns_dns_serial }} ;Serial
+    {{ binddns_dns_soa_refresh }} ;Refresh
+    {{ binddns_dns_soa_retry }} ;Retry
+    {{ binddns_dns_soa_expire }} ;Expire
+    {{ binddns_dns_soa_minimum }} ;Minimum TTL
+)
+
+;Name Server Information
+@ IN NS dns.{{ binddns_dns_domain }}.
+
+;IP for Name Server
+dns IN A {{ ansible_default_ipv4.address }}
+
+;A Record for IP address to Hostname

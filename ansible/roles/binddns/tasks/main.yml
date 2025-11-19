@@ -1,0 +1,51 @@
+# SPDX-License-Identifier: MIT-0
+---
+# tasks file for roles/binddns
+- name: Update packages
+  ansible.builtin.dnf:
+    name: "*"
+    state: latest
+  tags:
+    - skip_ansible_lint
+
+- name: Install Bind DNS
+  ansible.builtin.dnf:
+    name:
+      - bind
+      - bind-utils
+    state: present
+
+- name: Backup and configure_named.conf
+  ansible.builtin.template:
+    src: named.conf.j2
+    dest: "{{ binddns_bind_conf_path }}"
+    mode: '0640'
+    backup: true
+    group: named
+    owner: named
+  notify: Restart_named
+
+- name: Create forward zone
+  ansible.builtin.template:
+    src: forward-zone.j2
+    dest: "{{ binddns_bind_zone_dir }}/{{ binddns_dns_domain }}.db"
+    mode: '0644'
+    group: named
+    owner: named
+  notify: Restart_named
+
+- name: Create reverse zone
+  ansible.builtin.template:
+    src: reverse-zone.j2
+    dest: "{{ binddns_bind_zone_dir }}/{{ binddns_dns_domain }}.rev"
+    mode: '0644'
+    group: named
+    owner: named
+  notify: Restart_named
+
+- name: Open DNS ports in firewall
+  ansible.posix.firewalld:
+    service: dns
+    permanent: true
+    state: enabled
+  notify: Reload_firewalld

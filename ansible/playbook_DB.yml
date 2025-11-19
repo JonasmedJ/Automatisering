@@ -1,0 +1,25 @@
+---
+- name: Configure MariaDB
+  hosts: dbservers
+  become: true
+
+  vars_prompt:
+
+    - name: mariadb_db_name
+      prompt: " Input a name for the new database"
+      private: false
+      default: "{{ mariadb_db_name }}"
+
+    - name: mariadb_db_username
+      prompt: " Choose a username for the new database"
+      private: false
+      default: "{{ mariadb_db_username }}"
+
+    - name: mariadb_db_password
+      prompt: " Select a password for the user"
+      private: false
+      default: "{{ mariadb_db_password }}"
+
+
+  roles:
+    - mariadb

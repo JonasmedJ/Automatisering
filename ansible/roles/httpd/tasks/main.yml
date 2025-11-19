@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: MIT-0
+---
+# tasks file for roles/httpd
+
+- name: Install Apache
+  ansible.builtin.include_tasks: httpd_setup.yml
+
+- name: Configure Firewalld
+  ansible.builtin.include_tasks: firewall_setup.yml
+
+- name: Configure SFTP
+  ansible.builtin.include_tasks: sftp_setup.yml

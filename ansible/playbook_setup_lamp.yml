@@ -1,0 +1,7 @@
+---
+
+# Opsætning til Ansible script (IP'er, hostnames osv) (handlers til DNS?)
+- name: Setup Roles and Plays for LAMP Stack
+  hosts: localhost
+  become: true
+  

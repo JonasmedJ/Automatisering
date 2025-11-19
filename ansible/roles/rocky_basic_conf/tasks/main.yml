@@ -1,0 +1,131 @@
+# SPDX-License-Identifier: MIT-0
+---
+# tasks file for roles/rocky_basic_conf
+
+- name: Create takserver directory
+  ansible.builtin.file:
+    path: /tmp/takserver
+    state: directory
+    mode: '0755'
+
+- name: Download files from GitHub
+  ansible.builtin.get_url:
+    url: "{{ item.url }}"
+    dest: "{{ item.dest }}"
+    mode: '644'
+  loop:
+    - url: https://github.com/JonasmedJ/Takserver-SDK/raw/refs/heads/main/takserver-5.5-RELEASE58.noarch.rpm
+      dest: "{{ rocky_basic_conf_tak_file }}"
+    - url: https://github.com/JonasmedJ/Takserver-SDK/raw/refs/heads/main/takserver-public-gpg.key
+      dest: "{{ rocky_basic_conf_gpg_key }}"
+      when: not file_check.results[item.index].stat.exists
+
+- name: Import Takserver GPG_key
+  ansible.builtin.rpm_key:
+    state: present
+    key: "{{ rocky_basic_conf_gpg_key }}"
+
+- name: Check RPM_file signature
+  ansible.builtin.command:
+    cmd: rpm --checksig {{ rocky_basic_conf_tak_file }}
+  register: rocky_basic_conf_rpm_check
+  failed_when: "'OK' not in rocky_basic_conf_rpm_check.stdout"
+  changed_when: false
+  tags:
+    - skip_ansible_lint
+
+- name: Display signature result
+  ansible.builtin.debug:
+    var: rocky_basic_conf_rpm_check.stdout
+
+- name: Add security limits to file_limits.conf
+  ansible.builtin.blockinfile:
+    path: /etc/security/limits.conf
+    block: |
+      *       soft    nofile  32768
+      *       hard    nofile  32768
+    marker: "# {mark} ANSIBLE MANAGED BLOCK"
+    create: true
+    mode: '644'
+    owner: root
+    group: root
+
+- name: Install latest EPEL-release
+  ansible.builtin.dnf:
+    name: epel-release
+    state: present
+
+- name: Install PostgreSQL
+  ansible.builtin.dnf:
+    name: https://download.postgresql.org/pub/repos/yum/reporpms/EL-9-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+    state: present
+    disablerepo: "*"
+    disable_gpg_check: true
+
+# - name: Disable default PostgreSQL_module
+#   ansible.builtin.command:
+#     cmd: dnf -qy module disable postgresql
+
+- name: Disable PostgreSQL module
+  become: true
+  ansible.builtin.copy:
+    dest: /etc/dnf/modules.d/postgresql.module
+    owner: root
+    group: root
+    mode: "644"
+    content: |
+      [postgresql]
+      name=postgresql
+      stream=
+      profiles=
+      state=disabled
+
+- name: Update packages via DNF
+  ansible.builtin.dnf:
+    name: "*"
+    state: latest
+  tags:
+    - skip_ansible_lint
+
+- name: Ensure the crb repository is enabled
+  community.general.dnf_config_manager:
+    name: crb
+    state: enabled
+
+- name: Install openjdk
+  ansible.builtin.dnf:
+    name: java-17-openjdk-devel
+    state: present
+
+- name: Install TAK Server via downloaded file
+  ansible.builtin.dnf:
+    name: "{{ rocky_basic_conf_tak_file }}"
+    state: present
+  notify: Daemon-reload
+
+
+- name: Install checkpolicy
+  ansible.builtin.dnf:
+    name: checkpolicy
+    state: present
+
+- name: Apply SElinux to takserver
+  ansible.builtin.command:
+    cmd: ./apply-selinux.sh
+    chdir: /opt/tak
+  when:
+    - selinux_status.stdout == 'Enforcing'
+    - selinux_module_check.rc != 0
+  register: rocky_basic_conf_selinux_apply
+  changed_when: rocky_basic_conf_selinux_apply.rc == 0
+
+- name: Verify Takserver SElinux module is loaded
+  ansible.builtin.shell:
+    cmd: set -o pipefail && semodule -l | grep takserver
+  changed_when: false
+
+- name: Start Takserver
+  ansible.builtin.systemd:
+    name: takserver
+    state: started
+    enabled: true

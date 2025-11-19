@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: MIT-0
+---
+# handlers file for roles/rocky_basic_conf
+
+- name: Reload Firewall
+  ansible.builtin.service:
+    service: firewalld
+    state: reloaded
+
+- name: Daemon-reload
+  ansible.builtin.systemd_service:
+    daemon_reload: true

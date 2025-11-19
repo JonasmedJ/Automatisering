@@ -1,0 +1,23 @@
+---
+
+- name: Bind DNS service setup
+  hosts: dns_servers
+  become: true
+
+  vars_prompt:
+    - name: binddns_dns_domain
+      prompt: "Enter the domain for the DNS"
+      private: false
+      default: "domain.example"
+
+    - name: binddns_dns_network
+      prompt: "Enter the network address"
+      private: false
+      default: "192.168.0.0"
+
+  vars:
+    binddns_dns_reverse_zone: >-
+      {{ binddns_dns_network.split('.')[:3] | reverse | join('.') }}.in-addr.arpa
+
+  roles:
+    - binddns

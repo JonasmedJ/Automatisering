@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: MIT-0
+---
+# handlers file for roles/mariadb
+
+- name: Reload_DB
+  ansible.builtin.systemd:
+    name: mariadb
+    state: reloaded
+    enabled: true
+
+- name: Reload_firewalld
+  ansible.builtin.systemd:
+    name: firewalld
+    state: reloaded

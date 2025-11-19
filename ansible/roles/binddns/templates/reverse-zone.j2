@@ -1,0 +1,15 @@
+$TTL 86400
+@ IN SOA dns.{{ binddns_dns_domain }}. admin.{{ binddns_dns_domain }}. (
+    {{ binddns_dns_serial }} ;Serial
+    {{ binddns_dns_soa_refresh }} ;Refresh
+    {{ binddns_dns_soa_retry }} ;Retry
+    {{ binddns_dns_soa_expire }} ;Expire
+    {{ binddns_dns_soa_minimum }} ;Minimum TTL
+)
+;Name Server Information
+@ IN NS dns.{{ binddns_dns_domain }}.
+
+;Reverse lookup for Name Server
+102 IN PTR dns.{{ binddns_dns_domain }}.
+
+;PTR Record IP address to HostName

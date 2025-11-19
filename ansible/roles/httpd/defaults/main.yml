@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: MIT-0
+---
+# defaults file for roles/httpd
+
+httpd_domain_port: 80
+
+httpd_domain_ssl_port: 443
+
+httpd_reversed_domain: "{{ httpd_domain_name.split('.') | reverse | join('.') }}"
+
+httpd_base_domain: "{{ httpd_domain_name | regex_replace('^www\\.', '') }}"
+
+httpd_domain_name: www.domain.example
+
+httpd_domain_admin: domain1admin
+
+httpd_db_name: wp01
+
+httpd_db_username: wpuser
+
+httpd_db_password: Kode1234!
+
+httpd_db_host: "db.{{ httpd_base_domain }}"

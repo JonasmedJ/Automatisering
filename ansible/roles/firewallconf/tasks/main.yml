@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: MIT-0
+---
+# tasks file for roles/firewallconf
+
+- name: Configure ports for Firewalld
+  ansible.posix.firewalld:
+    port: "{{ item.port }}/{{ item.protocol }}"
+    permanent: true
+    state: enabled
+    immediate: true
+  loop:
+    - { port: 8089, protocol: tcp }
+    - { port: 8443, protocol: tcp }
+    - { port: 8446, protocol: tcp }
+  notify: Reload Firewalld

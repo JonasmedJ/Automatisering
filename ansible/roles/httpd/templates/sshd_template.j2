@@ -1,0 +1,6 @@
+Match User {{ httpd_domain_admin }}
+  PasswordAuthentication yes
+  ChrootDirectory /var/www/sub-domains/{{ httpd_domain_name }}
+  ForceCommand internal-sftp
+  AllowTcpForwarding no
+  X11Forwarding no

@@ -1,0 +1,133 @@
+---
+
+# SFTP service setup
+
+- name: Install OpenSSH-server, if not present
+  ansible.builtin.dnf:
+    name: openssh-server
+    state: present
+  changed_when: false
+  notify: Reload-ssh
+
+- name: Add website admins to SFTP group
+  ansible.builtin.user:
+    name: "{{ httpd_domain_admin }}"
+    create_home: false
+    groups: apache
+    home: /var/www/sub-domains/{{ httpd_domain_name }}/html/
+    shell: /usr/sbin/nologin
+    password: "{{ httpd_domain_admin_password | password_hash('sha512') }}"
+    system: false
+
+- name: Create backup of sshd_config
+  ansible.builtin.copy:
+    src: /etc/ssh/sshd_config
+    dest: /etc/ssh/sshd_config.bak
+    owner: root
+    group: root
+    mode: '0600'
+    remote_src: true
+    force: false
+
+- name: Configure SFTP subsystem to use internal-sftp
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^Subsystem\s+sftp'
+    line: 'Subsystem       sftp    internal-sftp'
+    state: present
+  notify: Reload-ssh
+
+- name: Create a template for sshd
+  ansible.builtin.template:
+    src: sshd_template.j2
+    dest: /usr/local/sbin/sshd_template
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create a folder for SFTP users
+  ansible.builtin.file:
+    path: /etc/ssh/sftp
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+
+- name: Create initial SFTP_config
+  ansible.builtin.file:
+    path: /etc/ssh/sftp/sftp_config
+    owner: root
+    group: root
+    mode: '0755'
+    state: touch
+
+- name: Include SFTP config in ssh file
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    line: "Include /etc/ssh/sftp/sftp_config"
+    state: present
+    insertafter: EOF
+  notify: Reload-ssh
+
+- name: Create template directory in sbin, if it doesn't exist
+  ansible.builtin.file:
+    path: /usr/local/sbin/templates
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Create domain-specific SFTP config from template
+  ansible.builtin.template:
+    src: sshd_template.j2
+    dest: "/usr/local/sbin/templates/{{ httpd_reversed_domain }}.txt"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Set ownership of domain html directory
+  ansible.builtin.file:
+    path: "/var/www/sub-domains/{{ httpd_domain_name }}/html"
+    owner: "{{ httpd_domain_admin }}"
+    group: apache
+    recurse: true
+    state: directory
+
+- name: Set permissions on domain directories
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    mode: "{{ item.mode }}"
+    state: directory
+  loop:
+    - { path: '/var/www/sub-domains', mode: '0755' }
+    - { path: "/var/www/sub-domains/{{ httpd_domain_name }}", mode: '0755' }
+    - { path: "/var/www/sub-domains/{{ httpd_domain_name }}/html", mode: '0755' }
+
+- name: Ensure chroot directory is owned by root (security requirement)
+  ansible.builtin.file:
+    path: "/var/www/sub-domains/{{ httpd_domain_name }}"
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+
+- name: Backup existing sftp_config
+  ansible.builtin.copy:
+    src: /etc/ssh/sftp/sftp_config
+    dest: /etc/ssh/sftp/sftp_config.bak
+    owner: root
+    group: root
+    mode: '0600'
+    remote_src: true
+    force: true
+
+- name: Append new SFTP user configuration
+  ansible.builtin.blockinfile:
+    path: /etc/ssh/sftp/sftp_config
+    block: "{{ lookup('template', 'sshd_template.j2') }}"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - {{ httpd_reversed_domain }}"
+    owner: root
+    group: root
+    mode: '0600'
+    create: true
+  notify: Reload-ssh

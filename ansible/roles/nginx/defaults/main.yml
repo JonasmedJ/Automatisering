@@ -1,0 +1,5 @@
+# SPDX-License-Identifier: MIT-0
+---
+# defaults file for roles/nginx
+
+nginx_ca_passphrase: Kode1234!

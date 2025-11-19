@@ -1,0 +1,121 @@
+---
+# Task file for Apache webserver setup
+
+- name: Update software
+  ansible.builtin.dnf:
+    name: "*"
+    state: latest
+  tags:
+    - skip_ansible_lint
+
+- name: Create domain user
+  ansible.builtin.user:
+    name: "{{ httpd_domain_admin }}"
+    create_home: false
+
+- name: Install httpd and php packages
+  ansible.builtin.dnf:
+    name:
+      - httpd
+      - php
+      - php-mysqlnd
+      - php-gd
+      - php-xml
+      - php-mbstring
+
+    state: present
+  notify: Httpd-reload
+
+- name: Create httpd enabled and available sites in /etc
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  loop:
+    - /etc/httpd/sites-available
+    - /etc/httpd/sites-enabled
+
+- name: Create sub-domains directory in /var
+  ansible.builtin.file:
+    path: /var/www/sub-domains
+    owner: root
+    group: apache
+    state: directory
+    mode: '0755'
+
+- name: Create website directory in sub-domains
+  ansible.builtin.file:
+    path: /var/www/sub-domains/{{ httpd_domain_name }}/html
+    state: directory
+    owner: "{{ httpd_domain_admin }}"
+    group: apache
+    mode: '0755'
+
+- name: Include sites-enabled in the httpd.conf
+  ansible.builtin.lineinfile:
+    path: /etc/httpd/conf/httpd.conf
+    line: "Include /etc/httpd/sites-enabled"
+    state: present
+    insertafter: EOF
+    backup: true
+
+- name: Create an Apache configuration file for {{ httpd_domain_name }}
+  ansible.builtin.template:
+    src: site_conf_template.j2
+    dest: /etc/httpd/sites-available/{{ httpd_reversed_domain }}.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - Domain-Enabled
+    - Httpd-reload
+
+- name: Download Wordpress from GitHub
+  ansible.builtin.get_url:
+    url: "https://wordpress.org/latest.tar.gz"
+    dest: /tmp/latest.tar.gz
+    mode: '0644'
+
+- name: Unpack Wordpress files
+  ansible.builtin.unarchive:
+    src: /tmp/latest.tar.gz
+    dest: /var/www/sub-domains/{{ httpd_domain_name }}/html
+    remote_src: true
+    extra_opts: [--strip-components=1]
+    owner: "{{ httpd_domain_admin }}"
+    group: apache
+
+- name: Set correct permissions for WordPress files
+  ansible.builtin.file:
+    path: /var/www/sub-domains/{{ httpd_domain_name }}/html
+    owner: "{{ httpd_domain_admin }}"
+    group: apache
+    recurse: true
+    mode: '0644'
+
+# Initial configuration of wp-config.php (Copy files to wp-config.php)
+- name: Create wp-config.php from sample
+  ansible.builtin.copy:
+    src: /var/www/sub-domains/{{ httpd_domain_name }}/html/wp-config-sample.php
+    dest: /var/www/sub-domains/{{ httpd_domain_name }}/html/wp-config.php
+    owner: "{{ httpd_domain_admin }}"
+    group: apache
+    mode: '0644'
+    remote_src: true
+
+- name: Update wp-config.php with DB information
+  ansible.builtin.replace:
+    path: /var/www/sub-domains/{{ httpd_domain_name }}/html/wp-config.php
+    regexp: "{{ item.regexp }}"
+    replace: "{{ item.replace }}"
+  loop:
+    - regexp: "(define\\( 'DB_NAME', )'database_name_here'( \\);)"
+      replace: "\\1'{{ httpd_db_name }}'\\2"
+    - regexp: "(define\\( 'DB_USER', )'username_here'( \\);)"
+      replace: "\\1'{{ httpd_db_username }}'\\2"
+    - regexp: "(define\\( 'DB_PASSWORD', )'password_here'( \\);)"
+      replace: "\\1'{{ httpd_db_password }}'\\2"
+    - regexp: "(define\\( 'DB_HOST', )'localhost'( \\);)"
+      replace: "\\1'{{ httpd_db_host }}'\\2"

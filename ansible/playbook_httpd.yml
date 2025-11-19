@@ -1,0 +1,45 @@
+---
+
+- name: Httpd setup
+  hosts: webservers
+  become: true
+
+  vars_prompt:
+
+    # Sets a domain admin, this user can/should also be used for SFTP setup
+    - name: httpd_domain_admin
+      prompt: " Enter the username for the domain admin"
+      private: false
+      default: "{{ httpd_domain_admin }}"
+
+    # Set password required for SFTP service later on, by the remote admin.
+    - name: httpd_domain_admin_password
+      prompt: " Enter the password you want for SFTP"
+      private: true
+      confirm: true
+
+    # Sets a domain name for the service
+    - name: httpd_domain_name
+      prompt: "Enter the domain name"
+      private: false
+      default: "{{ httpd_domain_name }}"
+
+    # Set DB username from the database. Or comment out and change in /roles/vars/main.yml
+    - name: httpd_db_username
+      prompt: " Enter the username for the DB user"
+      private: false
+      default: "{{ httpd_db_username }}"
+
+    # Set DB password from the database. Or comment out and change in /roles/vars/main.yml
+    - name: httpd_db_password
+      prompt: " Enter the password for the DB"
+      private: false
+      default: "{{ httpd_db_password }}"
+
+    - name: httpd_db_name
+      prompt: " Enter the database name"
+      private: false
+      default: "{{ httpd_db_name }}"
+
+  roles:
+    - httpd

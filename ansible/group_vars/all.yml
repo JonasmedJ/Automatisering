@@ -1,0 +1,8 @@
+---
+ubuntu_user: ubuntu
+
+rocky_user: root
+
+all_pw: Kode1234!
+
+ssh_key: nothing

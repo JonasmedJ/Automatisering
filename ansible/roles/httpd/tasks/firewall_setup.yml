@@ -1,0 +1,14 @@
+---
+
+- name: Configure Firewall
+  ansible.posix.firewalld:
+    port: "{{ item.port }}/{{ item.protocol }}"
+    permanent: true
+    state: enabled
+    immediate: true
+  loop:
+    - { port: 80, protocol: tcp }
+    - { port: 443, protocol: tcp }
+  notify:
+    - Firewall-reload
+    - SELinux-httpd

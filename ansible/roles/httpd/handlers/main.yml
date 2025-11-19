@@ -1,0 +1,31 @@
+# SPDX-License-Identifier: MIT-0
+---
+# handlers file for roles/httpd
+
+- name: Firewall-reload
+  ansible.builtin.systemd:
+    name: firewalld
+    state: reloaded
+
+- name: Httpd-reload
+  ansible.builtin.systemd:
+    name: httpd
+    state: reloaded
+    enabled: true
+
+- name: SELinux-httpd
+  ansible.posix.seboolean:
+    name: httpd_can_network_connect
+    state: true
+    persistent: true
+
+- name: Domain-Enabled
+  ansible.builtin.file:
+    src: /etc/httpd/sites-available/{{ httpd_reversed_domain }}.conf
+    dest: /etc/httpd/sites-enabled/{{ httpd_reversed_domain }}.conf
+    state: link
+
+- name: Reload-ssh
+  ansible.builtin.systemd:
+    name: sshd
+    state: reloaded
