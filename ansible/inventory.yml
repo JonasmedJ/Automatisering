@@ -19,11 +19,6 @@ myhosts:
         ansible_ssh_pass: "{{ all_pw }}"
         ansible_become_pass: "{{ all_pw }}"
 
-    # PROXMOX-HOST:
-    #     ansible_host: 10.101.8.107
-    #     ansible_user: jox
-    #     ansible_ssh_pass: "{{ all_pw }}"
-
 dns_servers:
   hosts:
       Rocky-Bind9:
@@ -45,5 +40,13 @@ dbservers:
       Rocky-DB01:
         ansible_host:
         ansible_user: rocky
+        ansible_ssh_pass: "{{ all_pw }}"
+        ansible_become_pass: "{{ all_pw }}"
+
+proxmoxhosts:
+  hosts:
+      proxmox01:
+        ansible_host: 10.101.8.107
+        ansible_user: root
         ansible_ssh_pass: "{{ all_pw }}"
         ansible_become_pass: "{{ all_pw }}"
