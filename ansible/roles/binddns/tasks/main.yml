@@ -8,11 +8,13 @@
   tags:
     - skip_ansible_lint
 
-- name: Install Bind DNS
+- name: Install required packages
   ansible.builtin.dnf:
     name:
       - bind
       - bind-utils
+      - firewalld
+      - python3-firewall
     state: present
 
 - name: Backup and configure_named.conf
@@ -41,6 +43,22 @@
     mode: '0644'
     group: named
     owner: named
+  notify: Restart_named
+
+- name: Add LAMP VMs to forward DNS zone
+  ansible.builtin.lineinfile:
+    path: "{{ binddns_bind_zone_dir }}/{{ binddns_dns_domain }}.db"
+    insertafter: ';A Record for IP address to Hostname'
+    line: "{{ item.name | lower }} IN A {{ item.ip }}"
+  loop: "{{ pve_vm_vms }}"
+  notify: Restart_named
+
+- name: Add LAMP VMs to reverse DNS zone
+  ansible.builtin.lineinfile:
+    path: "{{ binddns_bind_zone_dir }}/{{ binddns_dns_domain }}.rev"
+    insertafter: ";PTR Record IP address to HostName"
+    line: "{{ item.ip.split('.')[-1] }} IN PTR {{ item.name | lower }}.{{ binddns_dns_domain }}."
+  loop: "{{ pve_vm_vms }}"
   notify: Restart_named
 
 - name: Open DNS ports in firewall

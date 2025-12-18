@@ -93,7 +93,7 @@
     owner: "{{ httpd_domain_admin }}"
     group: apache
     recurse: true
-    mode: '0644'
+    mode: '0755'
 
 # Initial configuration of wp-config.php (Copy files to wp-config.php)
 - name: Create wp-config.php from sample
@@ -102,7 +102,7 @@
     dest: /var/www/sub-domains/{{ httpd_domain_name }}/html/wp-config.php
     owner: "{{ httpd_domain_admin }}"
     group: apache
-    mode: '0644'
+    mode: '0755'
     remote_src: true
 
 - name: Update wp-config.php with DB information
@@ -119,3 +119,5 @@
       replace: "\\1'{{ httpd_db_password }}'\\2"
     - regexp: "(define\\( 'DB_HOST', )'localhost'( \\);)"
       replace: "\\1'{{ httpd_db_host }}'\\2"
+
+# Lav download til Woocommerce plugin fra Github (Husk at lave directory først)

@@ -5,6 +5,7 @@ server {
 }
 
 server {
+    resolver {{ pve_vm_dns }}
     set $forward_scheme http;
     set $server         "{{ httpd_domain_IP }}";
     set $port           80;

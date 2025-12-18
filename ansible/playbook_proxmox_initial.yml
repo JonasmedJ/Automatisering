@@ -1,0 +1,7 @@
+---
+
+- name: Initial configuration of LAMP VMs
+  hosts: proxmoxhosts
+
+  roles:
+    - pve_vm

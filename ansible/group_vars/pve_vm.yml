@@ -1,0 +1,52 @@
+# IP Addresses for VM's in Proxmox
+
+pve_vm_network: 192.168.0.0
+
+pve_vm_gw: 192.168.0.1
+
+pve_vm_dns: 192.168.0.101
+
+pve_vm_mariadb: 192.168.0.102
+
+pve_vm_httpd: 192.168.0.103
+
+pve_vm_nginx: 192.168.0.104
+
+
+# Configurations for Proxmox VMs.
+pve_vm_vms:
+  - name: 'Rocky-DNS01'
+    vmid: 200
+    ip: "{{ pve_vm_dns }}"
+    cores: 2
+    memory: 4096
+    nameserver:
+      - "{{ pve_vm_dns }}"
+      - '1.1.1.1'
+
+  - name: 'Rocky-MariaDB01'
+    vmid: 201
+    ip: "{{ pve_vm_mariadb }}"
+    cores: 4
+    memory: 8192
+    nameserver:
+      - "{{ pve_vm_dns }}"
+      - '1.1.1.1'
+
+  - name: 'Rocky-Apache01'
+    vmid: 202
+    ip: "{{ pve_vm_httpd }}"
+    cores: 2
+    memory: 4096
+    nameserver:
+      - "{{ pve_vm_dns }}"
+      - '1.1.1.1'
+
+  - name: 'Rocky-nginx01'
+    vmid: 203
+    ip: "{{ pve_vm_nginx }}"
+    cores: 2
+    memory: 4096
+    nameserver:
+      - "{{ pve_vm_dns }}"
+      - '1.1.1.1'

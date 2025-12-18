@@ -15,25 +15,31 @@
     state: present
   notify: Reload_DB
 
+- name: Install Python MySQL library
+  ansible.builtin.dnf:
+    name: python3-PyMySQL
+    state: present
+
 - name: Ensure community.mysql collection is available
   ansible.builtin.debug:
     msg: "Make sure 'ansible-galaxy collection install community.mysql' has been run"
   run_once: true
 
-- name: Open ports in firewall for MariaDB
-  ansible.posix.firewalld:
-    service: mysql
-    permanent: true
-    state: enabled
-  notify: Reload_firewalld
+# - name: Open ports in firewall for MariaDB
+#   ansible.posix.firewalld:
+#     service: mysql
+#     permanent: true
+#     state: enabled
+#   notify: Reload_firewalld
 
 - name: Set MySQL root password
   community.mysql.mysql_user:
     name: root
     password: "{{ mariadb_db_root_password }}"
-    login_unix_socket: /run/mysql/mysql.sock
+    login_unix_socket: /var/lib/mysql/mysql.sock
     check_implicit_admin: true
     state: present
+
 
 - name: Remove anonymous MySQL users
   community.mysql.mysql_user:
@@ -42,7 +48,7 @@
     state: absent
     login_user: root
     login_password: "{{ mariadb_db_root_password }}"
-    login_unix_socket: /run/mysql/mysql.sock
+    login_unix_socket: /var/lib/mysql/mysql.sock
 
 - name: Remove remote root users (keep localhost only)
   community.mysql.mysql_user:
@@ -51,11 +57,11 @@
     state: absent
     login_user: root
     login_password: "{{ mariadb_db_root_password }}"
-    login_unix_socket: /run/mysql/mysql.sock
+    login_unix_socket: /var/lib/mysql/mysql.sock
   loop:
     - "%"
-    - "{{ ansible_hostname }}"
-    - "{{ ansible_fqdn }}"
+    - "{{ ansible_facts['hostname'] }}"
+    - "{{ ansible_facts['fqdn'] }}"
 
 - name: Remove test database
   community.mysql.mysql_db:
@@ -63,15 +69,16 @@
     state: absent
     login_user: root
     login_password: "{{ mariadb_db_root_password }}"
-    login_unix_socket: /run/mysql/mysql.sock
+    login_unix_socket: /var/lib/mysql/mysql.sock
 
 - name: Get databases matching test pattern
   community.mysql.mysql_query:
     login_user: root
     login_password: "{{ mariadb_db_root_password }}"
-    login_unix_socket: /run/mysql/mysql.sock
+    login_unix_socket: /var/lib/mysql/mysql.sock
     query: "SHOW DATABASES LIKE 'test\\_%'"
   register: mariadb_test_databases
+
 
 - name: Remove test % databases
   community.mysql.mysql_db:
@@ -79,16 +86,18 @@
     state: absent
     login_user: root
     login_password: "{{ mariadb_db_root_password }}"
-    login_unix_socket: /run/mysql/mysql.sock
+    login_unix_socket: /var/lib/mysql/mysql.sock
   loop: "{{ mariadb_test_databases.query_result[0] }}"
   when: mariadb_test_databases.query_result[0] | length > 0
+
 
 - name: Flush privileges
   community.mysql.mysql_query:
     login_user: root
     login_password: "{{ mariadb_db_root_password }}"
-    login_unix_socket: /run/mysql/mysql.sock
+    login_unix_socket: /var/lib/mysql/mysql.sock
     query: "FLUSH PRIVILEGES"
+
 
 - name: Create a new database with name {{ mariadb_db_name }}
   community.mysql.mysql_db:
@@ -96,9 +105,9 @@
     state: present
     login_user: root
     login_password: "{{ mariadb_db_root_password }}"
-    login_unix_socket: /run/mysql/mysql.sock
+    login_unix_socket: /var/lib/mysql/mysql.sock
 
-- name: Create a new database user for {{ maria_db_name }}
+- name: Create a new database user for {{ mariadb_db_name }}
   community.mysql.mysql_user:
     name: "{{ mariadb_db_username }}"
     password: "{{ mariadb_db_password }}"
@@ -107,4 +116,4 @@
     state: present
     login_user: root
     login_password: "{{ mariadb_db_password }}"
-    login_unix_socket: /run/mysql/mysql.sock
+    login_unix_socket: /var/lib/mysql/mysql.sock

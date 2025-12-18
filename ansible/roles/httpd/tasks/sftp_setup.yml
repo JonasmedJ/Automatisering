@@ -9,6 +9,7 @@
   changed_when: false
   notify: Reload-ssh
 
+
 - name: Add website admins to SFTP group
   ansible.builtin.user:
     name: "{{ httpd_domain_admin }}"
@@ -18,6 +19,7 @@
     shell: /usr/sbin/nologin
     password: "{{ httpd_domain_admin_password | password_hash('sha512') }}"
     system: false
+
 
 - name: Create backup of sshd_config
   ansible.builtin.copy:
@@ -29,6 +31,7 @@
     remote_src: true
     force: false
 
+
 - name: Configure SFTP subsystem to use internal-sftp
   ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
@@ -36,6 +39,7 @@
     line: 'Subsystem       sftp    internal-sftp'
     state: present
   notify: Reload-ssh
+
 
 - name: Create a template for sshd
   ansible.builtin.template:
@@ -45,6 +49,7 @@
     group: root
     mode: '0644'
 
+
 - name: Create a folder for SFTP users
   ansible.builtin.file:
     path: /etc/ssh/sftp
@@ -52,6 +57,7 @@
     group: root
     mode: '0755'
     state: directory
+
 
 - name: Create initial SFTP_config
   ansible.builtin.file:
@@ -61,6 +67,7 @@
     mode: '0755'
     state: touch
 
+
 - name: Include SFTP config in ssh file
   ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
@@ -68,6 +75,7 @@
     state: present
     insertafter: EOF
   notify: Reload-ssh
+
 
 - name: Create template directory in sbin, if it doesn't exist
   ansible.builtin.file:
@@ -77,6 +85,7 @@
     group: root
     mode: '0755'
 
+
 - name: Create domain-specific SFTP config from template
   ansible.builtin.template:
     src: sshd_template.j2
@@ -85,6 +94,7 @@
     group: root
     mode: '0644'
 
+
 - name: Set ownership of domain html directory
   ansible.builtin.file:
     path: "/var/www/sub-domains/{{ httpd_domain_name }}/html"
@@ -92,6 +102,7 @@
     group: apache
     recurse: true
     state: directory
+
 
 - name: Set permissions on domain directories
   ansible.builtin.file:
@@ -103,6 +114,7 @@
     - { path: "/var/www/sub-domains/{{ httpd_domain_name }}", mode: '0755' }
     - { path: "/var/www/sub-domains/{{ httpd_domain_name }}/html", mode: '0755' }
 
+
 - name: Ensure chroot directory is owned by root (security requirement)
   ansible.builtin.file:
     path: "/var/www/sub-domains/{{ httpd_domain_name }}"
@@ -110,6 +122,7 @@
     group: root
     mode: '0755'
     state: directory
+
 
 - name: Backup existing sftp_config
   ansible.builtin.copy:
@@ -120,6 +133,7 @@
     mode: '0600'
     remote_src: true
     force: true
+
 
 - name: Append new SFTP user configuration
   ansible.builtin.blockinfile:
