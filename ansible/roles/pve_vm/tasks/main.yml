@@ -88,6 +88,3 @@
     state: present
   delegate_to: "{{ item.ip }}"
   loop: "{{ pve_vm_vms }}"
-
-
-## Set timezone correctly

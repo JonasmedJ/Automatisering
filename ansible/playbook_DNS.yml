@@ -19,5 +19,8 @@
     binddns_dns_reverse_zone: >-
       {{ binddns_dns_network.split('.')[:3] | reverse | join('.') }}.in-addr.arpa
 
+  vars_files:
+    - ./group_vars/pve_vm.yml
+
   roles:
     - binddns

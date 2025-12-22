@@ -41,5 +41,8 @@
       private: false
       default: "{{ httpd_db_name }}"
 
+  vars_files:
+    - ./group_vars/pve_vm.yml
+
   roles:
     - httpd

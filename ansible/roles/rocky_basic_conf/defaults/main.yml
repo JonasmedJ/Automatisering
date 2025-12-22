@@ -1,6 +1,0 @@
-# SPDX-License-Identifier: MIT-0
----
-# defaults file for roles/rocky_basic_conf
-
-rocky_basic_conf_gpg_key: /tmp/takserver/takserver-public-gpg.key
-rocky_basic_conf_tak_file: /tmp/takserver/takserver-5.5-RELEASE58.noarch.rpm

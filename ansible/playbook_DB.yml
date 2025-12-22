@@ -20,6 +20,8 @@
       private: false
       default: "{{ mariadb_db_password }}"
 
+  vars_files:
+    - ./group_vars/pve_vm.yml
 
   roles:
     - mariadb
