@@ -4,9 +4,7 @@
 
 collections:
   - name: community.crypto
-    # specify version if you need a particular release
-    # version: "1.9.0"
+  - name: community.mysql
+  - name: community.proxmox
+  - name: ansible.posix
 
-# example for roles if you ever have them:
-#roles:
-#  - name: geerlingguy.git

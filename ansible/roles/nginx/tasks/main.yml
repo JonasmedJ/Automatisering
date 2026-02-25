@@ -1,13 +1,10 @@
 # SPDX-License-Identifier: MIT-0
 ---
-# tasks file for roles/nginx
-
 - name: Update packages
   ansible.builtin.dnf:
     name: "*"
     state: latest
-  tags:
-    - skip_ansible_lint
+  tags: skip_ansible_lint
 
 - name: Install nginx
   ansible.builtin.dnf:
@@ -15,26 +12,13 @@
     state: present
   notify: Nginx_reload
 
-- name: Create a configuration for {{ httpd_domain_name }}
-  ansible.builtin.template:
-    src: nginx_conf.j2
-    dest: /etc/nginx/conf.d/{{ httpd_domain_name }}.conf
+- name: Create nginx PKI directory
+  ansible.builtin.file:
+    path: /etc/pki/nginx
+    state: directory
     owner: root
     group: root
-    mode: '0644'
-  notify: Nginx_restart
-
-- name: Configure firewalld
-  ansible.posix.firewalld:
-    service: "{{ item.service }}"
-    permanent: true
-    state: enabled
-  loop:
-    - { service: http }
-    - { service: https }
-  notify:
-    - SELinux_httpd
-    - Firewall_reload
+    mode: '0755'
 
 - name: Create CA directory
   ansible.builtin.file:
@@ -44,12 +28,13 @@
     group: root
     mode: '0700'
 
-- name: Create private key with password protection
+- name: Create CA private key
   community.crypto.openssl_privatekey:
     path: /etc/pki/CA/private/CA.key
     passphrase: "{{ nginx_ca_passphrase }}"
+    cipher: auto
 
-- name: Create certificate signing request (CSR) for CA certificate
+- name: Create CSR for CA certificate
   community.crypto.openssl_csr_pipe:
     privatekey_path: /etc/pki/CA/private/CA.key
     privatekey_passphrase: "{{ nginx_ca_passphrase }}"
@@ -62,10 +47,8 @@
       - keyCertSign
     key_usage_critical: true
   register: ca_csr
-  tags: skip_ansible_lint
 
-
-- name: Create self-signed CA certificate from CSR
+- name: Create self-signed CA certificate
   community.crypto.x509_certificate:
     path: /etc/pki/CA/private/CA.pem
     csr_content: "{{ ca_csr.csr }}"
@@ -73,46 +56,46 @@
     privatekey_passphrase: "{{ nginx_ca_passphrase }}"
     provider: selfsigned
 
-- name: Create private key for new certificate on {{ httpd_domain_name }}
+- name: Create private key for {{ nginx_domain_name }}
   community.crypto.openssl_privatekey:
-    path: /etc/pki/nginx/{{ httpd_domain_name }}.key
-  delegate_to: server_1
-  run_once: true
+    path: /etc/pki/nginx/{{ nginx_domain_name }}.key
 
-- name: Create certificate signing request (CSR) for new certificate
+- name: Create CSR for {{ nginx_domain_name }}
   community.crypto.openssl_csr_pipe:
-    privatekey_path: /etc/pki/nginx/{{ httpd_domain_name }}.key
+    privatekey_path: /etc/pki/nginx/{{ nginx_domain_name }}.key
     subject_alt_name:
-      - "DNS:{{ httpd_domain_name }}"
-      - "DNS:{{ nginx_upstream_ip }}" # Define IP in setup playbook
-      - "DNS:"
-  delegate_to: "{{ httpd_domain_name }}"
-  run_once: true
-  register: csr
-  tags: skip_ansible_lint
+      - "DNS:{{ nginx_domain_name }}"
+      - "IP:{{ nginx_upstream_ip }}"
+  register: domain_csr
 
-- name: Sign certificate with our CA
-  community.crypto.x509_certificate_pipe:
-    csr_content: "{{ ca_csr.csr }}"
+- name: Sign certificate for {{ nginx_domain_name }} with CA
+  community.crypto.x509_certificate:
+    path: /etc/pki/nginx/{{ nginx_domain_name }}.crt
+    csr_content: "{{ domain_csr.csr }}"
     provider: ownca
     ownca_path: /etc/pki/CA/private/CA.pem
     ownca_privatekey_path: /etc/pki/CA/private/CA.key
     ownca_privatekey_passphrase: "{{ nginx_ca_passphrase }}"
-    ownca_not_after: +365d  # valid for one year
-    ownca_not_before: "-1d"  # valid since yesterday
-  delegate_to: "{{ httpd_can_network_connect }}"
-  run_once: true
-  register: certificate
-  tags: skip_ansible_lint
+    ownca_not_after: +365d
+    ownca_not_before: "-1d"
 
-- name: Write certificate file on {{ httpd_domain_name }}
-  copy:
-    dest: /etc/pki/nginx/{{ httpd_domain_name }}.pem
-    content: "{{ certificate.certificate }}"
-  delegate_to: "{{ httpd_domain_name }}"
-  run_once: true
-  tags: skip_ansible_lint
+- name: Create nginx configuration for {{ nginx_domain_name }}
+  ansible.builtin.template:
+    src: nginx_conf.j2
+    dest: /etc/nginx/conf.d/{{ nginx_domain_name }}.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Nginx_restart
 
-
-# Create SSL keys and certs
-# Create variable for IP and for secret_ca_passphrase
+- name: Configure firewalld
+  ansible.posix.firewalld:
+    service: "{{ item }}"
+    permanent: true
+    state: enabled
+  loop:
+    - http
+    - https
+  notify:
+    - SELinux_httpd
+    - Firewall_reload

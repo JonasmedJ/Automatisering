@@ -20,7 +20,7 @@
       scsi0: 'local-lvm:0,import-from=/root/Rocky-10-GenericCloud-Base.latest.x86_64.qcow2'
     ide:
       ide2: 'local-lvm:cloudinit'
-    ciuser: rocky
+    ciuser: "{{ rocky_user }}"
     cipassword: "{{ default_password }}"
     # Use ansible controller SSH keys
     sshkeys: "{{ lookup('file', '~/.ssh/id_ed25519.pub') }}"
@@ -29,12 +29,12 @@
     net:
       net0: 'virtio,bridge=vmbr1'
     ipconfig:
-      ipconfig0: 'ip={{ item.ip }}/24,gw={{ pve_vm_gw }}'
+      ipconfig0: "ip={{ item.ip }}/{{ pve_subnet }},gw={{ pve_gateway }}"
   # Run modules with ansible controller, instead of installing on PVE host
   delegate_to: localhost
   loop: "{{ pve_vm_vms }}"
 
-- name: Start the VMcloud init add user to sudo proxmox_kvm ansible
+- name: Start the VMs
   community.proxmox.proxmox_kvm:
     api_user: "{{ pve_api_user }}"
     api_password: "{{ pve_api_password }}"
@@ -59,7 +59,7 @@
   become: true
   loop: "{{ pve_vm_vms }}"
   vars:
-    ansible_user: rocky
+    ansible_user: "{{ rocky_user }}"
   tags: skip_ansible_lint
 
 - name: Set Danish keyboard layout
@@ -68,14 +68,19 @@
   become: true
   loop: "{{ pve_vm_vms }}"
   vars:
-    ansible_user: rocky
+    ansible_user: "{{ rocky_user }}"
   tags: skip_ansible_lint
 
-- name: Add rocky to sudo wheel
+- name: Add rocky user to sudo wheel
   ansible.builtin.user:
     name: rocky
     groups: wheel
     append: true
+  delegate_to: "{{ item.ip }}"
+  become: true
+  loop: "{{ pve_vm_vms }}"
+  vars:
+    ansible_user: "{{ rocky_user }}"
 
 - name: Install packages not included in cloud image (Firewalld, zip, vim)
   ansible.builtin.dnf:
@@ -88,4 +93,7 @@
       - bash-completion
     state: present
   delegate_to: "{{ item.ip }}"
+  become: true
   loop: "{{ pve_vm_vms }}"
+  vars:
+    ansible_user: "{{ rocky_user }}"

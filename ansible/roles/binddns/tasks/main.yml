@@ -17,6 +17,11 @@
       - python3-firewall
     state: present
 
+- name: Create reverse zone from network
+  ansible.builtin.set_fact:
+    binddns_dns_reverse_zone: >-
+      {{ binddns_dns_network.split('.')[:3] | reverse | join('.') }}.in-addr.arpa
+
 - name: Backup and configure_named.conf
   ansible.builtin.template:
     src: named.conf.j2

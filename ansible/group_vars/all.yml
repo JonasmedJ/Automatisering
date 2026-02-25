@@ -1,12 +1,15 @@
 ---
-
+# ============================================================
+# LAMP Stack configurations
+# ============================================================
 
 # ____ Common credentials [modify as needed] ____
 default_password: _your_secure_password_here_
 ssh_pub_key: _your_ssh_public_key_here_
 ubuntu_user: ubuntu
-rocky_user: root
+rocky_user: rocky
 ssh_key: _replace_with_your_ssh_public_key_here_
+
 
 # ____ Proxmox Ansible Connection [modify as needed] ____
 pve_api_host: _pve_IP_address_here_
@@ -14,11 +17,13 @@ pve_api_user: root@pam
 pve_api_node: pve
 pve_api_password: _Insert_secure_password_here_
 
+
 # ____ LAN Network [modify as needed] ____
 pve_network: 192.168.0.0
 pve_subnet: 24
 pve_gateway: 192.168.0.1
 pve_search_domain: _domain.example_
+
 
 # ____ BIND DNS Configuration [modify as needed] ____
 binddns_dns_domain: "{{ pve_search_domain }}"

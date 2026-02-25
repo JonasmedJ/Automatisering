@@ -115,6 +115,6 @@
     host: "{{ item }}"
     state: present
     login_user: root
-    login_password: "{{ mariadb_db_password }}"
+    login_password: "{{ mariadb_db_root_password }}"
     login_unix_socket: /var/lib/mysql/mysql.sock
   loop: "{{ mariadb_allowed_hosts }}"
