@@ -1,0 +1,12 @@
+# Requirements for Ansible collections and roles used by this project.
+# Install with:
+#   ansible-galaxy collection install -r ansible/requirements.yml
+
+collections:
+  - name: community.crypto
+    # specify version if you need a particular release
+    # version: "1.9.0"
+
+# example for roles if you ever have them:
+#roles:
+#  - name: geerlingguy.git

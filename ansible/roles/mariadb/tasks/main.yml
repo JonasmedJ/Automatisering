@@ -112,8 +112,9 @@
     name: "{{ mariadb_db_username }}"
     password: "{{ mariadb_db_password }}"
     priv: '{{ mariadb_db_name }}.*:ALL'
-    host: "{{ hostvars['Rocky-WP01']['ansible_host'] }}"
+    host: "{{ item }}"
     state: present
     login_user: root
-    login_password: "{{ mariadb_db_password }}"
+    login_password: "{{ mariadb_db_root_password }}"
     login_unix_socket: /var/lib/mysql/mysql.sock
+  loop: "{{ mariadb_allowed_hosts }}"

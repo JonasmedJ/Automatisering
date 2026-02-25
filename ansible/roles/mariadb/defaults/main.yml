@@ -2,10 +2,5 @@
 ---
 # defaults file for roles/mariadb
 
-mariadb_db_name: wp01
-
-mariadb_db_username: wpuser
-
-mariadb_db_password: Kode1234!
-
-mariadb_db_root_password: Kode1234!
+mariadb_allowed_hosts:
+  - "{{ pve_ip_httpd }}"

@@ -1,21 +1,21 @@
 server {
-    listen 80;
-    server_name {{ httpd_domain_name }};
+    listen {{ nginx_http_port }};
+    server_name {{ nginx_domain_name }};
     return 301 https://$host$request_uri;
 }
 
 server {
-    resolver {{ pve_vm_dns }}
+    listen {{ nginx_https_port }} ssl;
+    server_name {{ nginx_domain_name }};
+
+    resolver {{ nginx_resolver_ip }};
+
     set $forward_scheme http;
-    set $server         "{{ httpd_domain_IP }}";
+    set $server         "{{ nginx_upstream_ip }}";
     set $port           80;
 
-    listen 443 ssl;
-    server_name {{ httpd_domain_name }};
-
-    ssl_certificate "/etc/pki/nginx/{{ httpd_domain_name }}.crt";
-    ssl_certificate_key "/etc/pki/nginx/{{ httpd_domain_name }}.key";
-    ssl_password_file "/etc/pki/nginx/{{ httpd_domain_name }}.passphrase.txt";
+    ssl_certificate     "/etc/pki/nginx/{{ nginx_domain_name }}.crt";
+    ssl_certificate_key "/etc/pki/nginx/{{ nginx_domain_name }}.key";
 
     location / {
         proxy_no_cache 1;

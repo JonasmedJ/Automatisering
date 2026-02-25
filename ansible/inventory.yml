@@ -21,32 +21,40 @@ myhosts:
 
 dns_servers:
   hosts:
-      Rocky-Bind9:
-        ansible_host: "{{ pve_vm_dns }}"
-        ansible_user: rocky
-        ansible_ssh_pass: "{{ all_pw }}"
-        ansible_become_pass: "{{ all_pw }}"
+    Rocky-DNS01:
+      ansible_host: 192.168.0.101
+      ansible_user: rocky
+      ansible_ssh_pass: "{{ all_pw }}"
+      ansible_become_pass: "{{ all_pw }}"
 
 webservers:
   hosts:
-      Rocky-WP01:
-        ansible_host: "{{ pve_vm_httpd }}"
-        ansible_user: rocky
-        ansible_ssh_pass: "{{ all_pw }}"
-        ansible_become_pass: "{{ all_pw }}"
+    Rocky-Apache01:
+      ansible_host: 192.168.0.103
+      ansible_user: rocky
+      ansible_ssh_pass: "{{ all_pw }}"
+      ansible_become_pass: "{{ all_pw }}"
 
 dbservers:
   hosts:
-      Rocky-DB01:
-        ansible_host: "{{ pve_vm_mariadb }}"
-        ansible_user: rocky
-        ansible_ssh_pass: "{{ all_pw }}"
-        ansible_become_pass: "{{ all_pw }}"
+    Rocky-MariaDB01:
+      ansible_host: 192.168.0.102
+      ansible_user: rocky
+      ansible_ssh_pass: "{{ all_pw }}"
+      ansible_become_pass: "{{ all_pw }}"
+
+nginxservers:
+  hosts:
+    Rocky-Nginx01:
+      ansible_host: 192.168.0.104
+      ansible_user: rocky
+      ansible_ssh_pass: "{{ all_pw }}"
+      ansible_become_pass: "{{ all_pw }}"
 
 proxmoxhosts:
   hosts:
-      proxmox01:
-        ansible_host: 10.101.8.107
-        ansible_user: root
-        ansible_ssh_pass: "{{ all_pw }}"
-        ansible_become_pass: "{{ all_pw }}"
+    proxmox01:
+      ansible_host: 10.101.8.107
+      ansible_user: root
+      ansible_ssh_pass: "{{ all_pw }}"
+      ansible_become_pass: "{{ all_pw }}"
