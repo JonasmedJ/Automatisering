@@ -84,7 +84,7 @@
     privatekey_path: /etc/pki/nginx/{{ httpd_domain_name }}.key
     subject_alt_name:
       - "DNS:{{ httpd_domain_name }}"
-      - "DNS:{{ WP_IP }}" # Define IP in setup playbook
+      - "DNS:{{ nginx_upstream_ip }}" # Define IP in setup playbook
       - "DNS:"
   delegate_to: "{{ httpd_domain_name }}"
   run_once: true

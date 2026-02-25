@@ -10,6 +10,6 @@ $TTL 86400
 @ IN NS dns.{{ binddns_dns_domain }}.
 
 ;Reverse lookup for Name Server
-102 IN PTR dns.{{ binddns_dns_domain }}.
+{{ pve_ip_dns.split('.')[-1] }} IN PTR dns.{{ binddns_dns_domain }}.
 
 ;PTR Record IP address to HostName
