@@ -8,6 +8,12 @@
   tags:
     - skip_ansible_lint
 
+- name: Enable and start firewalld
+  ansible.builtin.systemd:
+    name: firewalld
+    state: started
+    enabled: true
+
 - name: Install required packages
   ansible.builtin.dnf:
     name:

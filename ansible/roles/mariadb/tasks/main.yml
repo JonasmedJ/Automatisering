@@ -44,7 +44,8 @@
 
 
 - name: Reload Firewalld to apply changes
-  ansible.posix.firewalld:
+  ansible.builtin.systemd:
+    name: firewalld
     state: reloaded
 
 
