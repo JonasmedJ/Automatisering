@@ -62,7 +62,7 @@
     ansible_user: "{{ rocky_user }}"
   tags: skip_ansible_lint
 
-- name: Set Danish keyboard layout
+- name: Set Danish Timezone
   ansible.builtin.command: timedatectl set-timezone Europe/Copenhagen
   delegate_to: "{{ item.ip }}"
   become: true

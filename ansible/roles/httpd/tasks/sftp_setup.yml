@@ -65,6 +65,7 @@
     group: root
     mode: '0755'
     state: touch
+  changed_when: false
 
 
 - name: Include SFTP config in ssh file

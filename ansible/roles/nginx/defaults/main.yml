@@ -4,9 +4,6 @@
 
 nginx_ca_passphrase: Kode1234!
 
-# The domain this nginx instance is proxying — must be set explicitly
-nginx_domain_name: "{{ httpd_domain_name | default('') }}"
-
 # The upstream backend IP nginx will proxy_pass to
 nginx_upstream_ip: "{{ pve_ip_httpd }}"
 
