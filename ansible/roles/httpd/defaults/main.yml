@@ -10,4 +10,4 @@ httpd_reversed_domain: "{{ httpd_domain_name.split('.') | reverse | join('.') }}
 
 httpd_base_domain: "{{ httpd_domain_name | regex_replace('^www\\.', '') }}"
 
-httpd_db_host: "db.{{ httpd_base_domain }}"
+httpd_db_host: "{{ pve_ip_mariadb }}"

@@ -17,9 +17,9 @@ options {
 	secroots-file	"/var/named/data/named.secroots";
 	recursing-file	"/var/named/data/named.recursing";
 
-	allow-query     { localhost; {{ binddns_dns_network }}/24; };
-	allow-query-cache { localhost; {{ binddns_dns_network }}/24; };
-	allow-recursion { localhost; {{ binddns_dns_network }}/24; };
+	allow-query     { localhost; {{ binddns_dns_network }}/{{ pve_subnet }}; };
+	allow-query-cache { localhost; {{ binddns_dns_network }}/{{ pve_subnet}}; };
+	allow-recursion { localhost; {{ binddns_dns_network }}/{{ pve_subnet}}; };
 
 	/* 
 	 - If you are building an AUTHORITATIVE DNS server, do NOT enable recursion.

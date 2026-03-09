@@ -35,7 +35,7 @@ pve_vm_vms:
       - "{{ pve_ip_dns }}"
       - '1.1.1.1'
 
-  - name: 'Rocky-nginx01'
+  - name: 'Rocky-Nginx01'
     vmid: 203
     ip: "{{ pve_ip_nginx }}"
     cpu: x86-64-v3

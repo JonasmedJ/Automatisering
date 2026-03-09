@@ -60,6 +60,7 @@
   loop: "{{ pve_vm_vms }}"
   vars:
     ansible_user: "{{ rocky_user }}"
+    ansible_become_pass: "{{ default_password }}"
   tags: skip_ansible_lint
 
 - name: Set Danish Timezone
@@ -69,6 +70,7 @@
   loop: "{{ pve_vm_vms }}"
   vars:
     ansible_user: "{{ rocky_user }}"
+    ansible_become_pass: "{{ default_password }}"
   tags: skip_ansible_lint
 
 - name: Add rocky user to sudo wheel
@@ -81,6 +83,7 @@
   loop: "{{ pve_vm_vms }}"
   vars:
     ansible_user: "{{ rocky_user }}"
+    ansible_become_pass: "{{ default_password }}"
 
 - name: Install packages not included in cloud image (Firewalld, zip, vim)
   ansible.builtin.dnf:
@@ -97,3 +100,4 @@
   loop: "{{ pve_vm_vms }}"
   vars:
     ansible_user: "{{ rocky_user }}"
+    ansible_become_pass: "{{ default_password }}"
