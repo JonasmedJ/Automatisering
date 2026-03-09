@@ -92,13 +92,6 @@
     - Domain-Enabled
     - Httpd-reload
 
-- name: Ensure wp-content/plugins directory exists
-  ansible.builtin.file:
-    path: /var/www/sub-domains/{{ httpd_domain_name }}/html/wp-content/plugins
-    state: directory
-    owner: "{{ httpd_domain_admin }}"
-    group: apache
-    mode: '0755'
 
 - name: Download Wordpress from GitHub
   ansible.builtin.get_url:
