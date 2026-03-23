@@ -12,6 +12,12 @@
     state: present
   notify: Nginx_reload
 
+- name: Start nginx
+  ansible.builtin.systemd:
+    name: nginx
+    state: started
+    enabled: true
+
 - name: Create nginx PKI directory
   ansible.builtin.file:
     path: /etc/pki/nginx
