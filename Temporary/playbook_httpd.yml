@@ -10,7 +10,7 @@
     - name: httpd_domain_admin
       prompt: " Enter the username for the domain admin"
       private: false
-      default: "{{ httpd_domain_admin }}"
+#      default: "{{ httpd_domain_admin }}"
 
     # Set password required for SFTP service later on, by the remote admin.
     - name: httpd_domain_admin_password
@@ -22,27 +22,27 @@
     - name: httpd_domain_name
       prompt: "Enter the domain name"
       private: false
-      default: "{{ httpd_domain_name }}"
+#      default: "{{ httpd_domain_name }}"
 
     # Set DB username from the database. Or comment out and change in /roles/vars/main.yml
     - name: httpd_db_username
       prompt: " Enter the username for the DB user"
       private: false
-      default: "{{ httpd_db_username }}"
+#      default: "{{ httpd_db_username }}"
 
     # Set DB password from the database. Or comment out and change in /roles/vars/main.yml
     - name: httpd_db_password
       prompt: " Enter the password for the DB"
       private: false
-      default: "{{ httpd_db_password }}"
+#      default: "{{ httpd_db_password }}"
 
     - name: httpd_db_name
       prompt: " Enter the database name"
       private: false
-      default: "{{ httpd_db_name }}"
+#      default: "{{ httpd_db_name }}"
 
-  vars_files:
-    - ./group_vars/pve_vm.yml
+#  vars_files:
+#    - ./group_vars/pve_vm.yml
 
-  roles:
-    - httpd
+#  roles:
+#    - httpd

@@ -88,6 +88,12 @@
     mode: '0644'
   notify: Nginx_restart
 
+- name: Enable and start firewalld
+  ansible.builtin.systemd:
+    name: firewalld
+    state: started
+    enabled: true
+
 - name: Configure firewalld
   ansible.posix.firewalld:
     service: "{{ item }}"

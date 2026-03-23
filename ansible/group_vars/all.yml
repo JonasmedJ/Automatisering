@@ -41,7 +41,8 @@ mariadb_allowed_hosts:
 
 # ____ Apache Configuration [modify as needed] ____
 httpd_domain_name: "{{ pve_search_domain }}"
-httpd_domain_admin: "{{ pve_search_domain }}admin"
+httpd_domain_admin: "{{ pve_search_domain.split('.')[0] }}admin"
+httpd_domain_admin_password: "{{ default_password }}"
 httpd_db_name: "{{ mariadb_db_name }}"
 httpd_db_username: "{{ mariadb_db_username }}"
 httpd_db_password: "{{ mariadb_db_password }}"

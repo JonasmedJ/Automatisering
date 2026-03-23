@@ -22,5 +22,5 @@
   vars_files:
     - ./group_vars/pve_vm.yml
 
-  roles:
-    - binddns
+#  roles:
+#    - binddns

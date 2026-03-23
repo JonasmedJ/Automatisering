@@ -8,7 +8,7 @@
     - name: mariadb_db_name
       prompt: " Input a name for the new database"
       private: false
-      default: "{{ mariadb_db_name }}"
+#      default: "{{ mariadb_db_name }}"
 
     - name: mariadb_db_username
       prompt: " Choose a username for the new database"
@@ -23,5 +23,6 @@
   vars_files:
     - ./group_vars/pve_vm.yml
 
-  roles:
-    - mariadb
+#  roles:
+#    - mariadb
+

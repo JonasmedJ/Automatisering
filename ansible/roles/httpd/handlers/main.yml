@@ -12,13 +12,6 @@
     name: httpd
     state: reloaded
 
-
-- name: SELinux-httpd
-  ansible.posix.seboolean:
-    name: httpd_can_network_connect
-    state: true
-    persistent: true
-
 - name: Domain-Enabled
   ansible.builtin.file:
     src: /etc/httpd/sites-available/{{ httpd_reversed_domain }}.conf
