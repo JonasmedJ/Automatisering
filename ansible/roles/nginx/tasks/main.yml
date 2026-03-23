@@ -10,7 +10,6 @@
   ansible.builtin.dnf:
     name: nginx
     state: present
-  notify: Nginx_reload
 
 - name: Start nginx
   ansible.builtin.systemd:

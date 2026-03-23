@@ -8,12 +8,6 @@
   tags:
     - skip_ansible_lint
 
-- name: Enable and start firewalld
-  ansible.builtin.systemd:
-    name: firewalld
-    state: started
-    enabled: true
-
 - name: Install required packages
   ansible.builtin.dnf:
     name:
@@ -22,6 +16,12 @@
       - firewalld
       - python3-firewall
     state: present
+
+- name: Enable and start firewalld
+  ansible.builtin.systemd:
+    name: firewalld
+    state: started
+    enabled: true
 
 - name: Create reverse zone from network
   ansible.builtin.set_fact:
