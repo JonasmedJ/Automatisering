@@ -5,10 +5,12 @@
 - name: Reload_DB
   ansible.builtin.systemd:
     name: mariadb
-    state: reloaded
+    state: started
     enabled: true
 
 - name: Reload_firewalld
   ansible.builtin.systemd:
     name: firewalld
     state: reloaded
+# Allow mysql in firewall
+

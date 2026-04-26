@@ -2,6 +2,7 @@
 ---
 # tasks file for roles/mariadb
 
+
 - name: Update packages
   ansible.builtin.dnf:
     name: "*"
@@ -13,7 +14,6 @@
   ansible.builtin.dnf:
     name: mariadb-server
     state: present
-  notify: Reload_DB
 
 - name: Install Python MySQL library
   ansible.builtin.dnf:
@@ -24,6 +24,12 @@
   ansible.builtin.debug:
     msg: "Make sure 'ansible-galaxy collection install community.mysql' has been run"
   run_once: true
+
+- name: Reload_DB
+  ansible.builtin.systemd:
+    name: mariadb
+    state: started
+    enabled: true
 
 # - name: Open ports in firewall for MariaDB
 #   ansible.posix.firewalld:
@@ -37,6 +43,8 @@
     name: root
     password: "{{ mariadb_db_root_password }}"
     login_unix_socket: /var/lib/mysql/mysql.sock
+    login_user: root
+    login_password: "{{ mariadb_db_root_password }}"
     check_implicit_admin: true
     state: present
 
@@ -117,3 +125,14 @@
     login_user: root
     login_password: "{{ mariadb_db_password }}"
     login_unix_socket: /var/lib/mysql/mysql.sock
+
+- name: Ensure Firewalld has MySQL ports opened
+  ansible.posix.firewalld:
+    service: mysql
+    permanent: true
+    state: enabled
+
+- name: Firewall-reload
+  ansible.builtin.systemd:
+    name: firewalld
+    state: reloaded

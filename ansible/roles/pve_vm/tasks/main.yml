@@ -34,7 +34,7 @@
   delegate_to: localhost
   loop: "{{ pve_vm_vms }}"
 
-- name: Start the VMcloud init add user to sudo proxmox_kvm ansible
+- name: Start the VM
   community.proxmox.proxmox_kvm:
     api_user: root@pam
     api_password: "{{ all_pw }}"
@@ -76,6 +76,11 @@
     name: rocky
     groups: wheel
     append: true
+  delegate_to: "{{ item.ip }}"
+  become: true
+  loop: "{{ pve_vm_vms }}"
+  vars:
+    ansible_user: rocky
 
 - name: Install packages not included in cloud image (Firewalld, zip, vim)
   ansible.builtin.dnf:
@@ -85,6 +90,48 @@
       - zip
       - vim
       - git
+      - bash-completion
+      - wget
     state: present
   delegate_to: "{{ item.ip }}"
   loop: "{{ pve_vm_vms }}"
+  become: true
+  vars:
+    ansible_user: rocky
+  notify:
+    Firewalld_start
+
+- name: Install freeipa-client
+  ansible.builtin.dnf:
+    name:
+      - ipa-client
+    state: present
+  delegate_to: "{{ item.ip }}"
+  become: true
+  loop: "{{ pve_vm_vms }}"
+  when: item.name != 'Rocky-FreeIPA01'
+  vars:
+    ansible_user: rocky
+
+- name: Require password for sudo (remove NOPASSWD for wheel group)
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers
+    regexp: '^%wheel\s+ALL=\(ALL\)\s+NOPASSWD:\s+ALL'
+    line: '%wheel  ALL=(ALL)       ALL'
+    validate: '/usr/sbin/visudo -cf %s'
+  delegate_to: "{{ item.ip }}"
+  become: true
+  loop: "{{ pve_vm_vms }}"
+  vars:
+    ansible_user: rocky
+
+- name: Remove cloud-init sudoers file if it exists
+  ansible.builtin.file:
+    path: /etc/sudoers.d/90-cloud-init-users
+    state: absent
+  delegate_to: "{{ item.ip }}"
+  become: true
+  loop: "{{ pve_vm_vms }}"
+  vars:
+    ansible_user: rocky
+    ansible_become_pass: "{{ all_pw }}"

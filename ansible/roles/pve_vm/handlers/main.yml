@@ -1,3 +1,15 @@
 # SPDX-License-Identifier: GPL-3.0-only
 ---
 # handlers file for roles/proxmox_vm_template
+
+- name: Firewalld_start
+  ansible.builtin.systemd:
+    name: firewalld
+    state: reloaded
+    enabled: true
+  delegate_to: "{{ item.ip }}"
+  become: true
+  loop: "{{ pve_vm_vms }}"
+  vars:
+    ansible_user: rocky
+    ansible_become_pass: "{{ all_pw }}"

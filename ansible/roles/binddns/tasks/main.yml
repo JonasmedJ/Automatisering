@@ -66,4 +66,5 @@
     service: dns
     permanent: true
     state: enabled
+    immediate: true
   notify: Reload_firewalld

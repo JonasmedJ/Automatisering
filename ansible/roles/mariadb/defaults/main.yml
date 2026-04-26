@@ -9,3 +9,5 @@ mariadb_db_username: wpuser
 mariadb_db_password: Kode1234!
 
 mariadb_db_root_password: Kode1234!
+
+pve_vm_httpd: 192.168.0.158
