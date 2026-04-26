@@ -10,21 +10,35 @@
   tags:
     - skip_ansible_lint
 
+
 - name: Download and install MariaDB
   ansible.builtin.dnf:
     name: mariadb-server
     state: present
+<<<<<<< HEAD
+=======
+
+>>>>>>> 037f876fe6c40c647f38f7f55fcb8576c3ebd03c
 
 - name: Install Python MySQL library
   ansible.builtin.dnf:
     name: python3-PyMySQL
     state: present
 
+
+- name: Ensure MariaDB service is running and enabled
+  ansible.builtin.service:
+    name: mariadb
+    state: started
+    enabled: true
+
+
 - name: Ensure community.mysql collection is available
   ansible.builtin.debug:
     msg: "Make sure 'ansible-galaxy collection install community.mysql' has been run"
   run_once: true
 
+<<<<<<< HEAD
 - name: Reload_DB
   ansible.builtin.systemd:
     name: mariadb
@@ -37,6 +51,22 @@
 #     permanent: true
 #     state: enabled
 #   notify: Reload_firewalld
+=======
+
+- name: Open ports in firewall for MariaDB
+  ansible.posix.firewalld:
+    service: mysql
+    permanent: true
+    state: enabled
+    immediate: true
+
+
+- name: Reload Firewalld to apply changes
+  ansible.builtin.systemd:
+    name: firewalld
+    state: reloaded
+
+>>>>>>> 037f876fe6c40c647f38f7f55fcb8576c3ebd03c
 
 - name: Set MySQL root password
   community.mysql.mysql_user:
@@ -120,11 +150,12 @@
     name: "{{ mariadb_db_username }}"
     password: "{{ mariadb_db_password }}"
     priv: '{{ mariadb_db_name }}.*:ALL'
-    host: "{{ hostvars['Rocky-WP01']['ansible_host'] }}"
+    host: "{{ item }}"
     state: present
     login_user: root
-    login_password: "{{ mariadb_db_password }}"
+    login_password: "{{ mariadb_db_root_password }}"
     login_unix_socket: /var/lib/mysql/mysql.sock
+<<<<<<< HEAD
 
 - name: Ensure Firewalld has MySQL ports opened
   ansible.posix.firewalld:
@@ -136,3 +167,6 @@
   ansible.builtin.systemd:
     name: firewalld
     state: reloaded
+=======
+  loop: "{{ mariadb_allowed_hosts }}"
+>>>>>>> 037f876fe6c40c647f38f7f55fcb8576c3ebd03c

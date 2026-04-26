@@ -11,4 +11,3 @@
     - { port: 443, protocol: tcp }
   notify:
     - Firewall-reload
-    - SELinux-httpd

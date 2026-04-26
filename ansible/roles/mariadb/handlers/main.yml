@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT-0
 ---
 # handlers file for roles/mariadb
+<<<<<<< HEAD
 
 - name: Reload_DB
   ansible.builtin.systemd:
@@ -14,3 +15,5 @@
     state: reloaded
 # Allow mysql in firewall
 
+=======
+>>>>>>> 037f876fe6c40c647f38f7f55fcb8576c3ebd03c

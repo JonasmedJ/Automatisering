@@ -1,81 +1,50 @@
 ---
 
-# Opsætning til Ansible script (IP'er, hostnames osv) (handlers til DNS?)
-- name: Setup Roles and Plays for LAMP Stack
+# ============================================================
+# LAMP Stack Setup
+# ============================================================
+
+- name: Prompt user to confirm all.yml is configured
   hosts: localhost
+  tasks:
+    - name: Ask user if all.yml is configured
+      ansible.builtin.pause:
+        prompt: "Have you configured group_vars/all.yml with the correct values?"
+
+- name: Provision Proxmox VMs
+  hosts: proxmoxhosts
+  roles:
+    - pve_vm
+
+- name: Wait for VMs to be ready
+  hosts: dns_servers, dbservers, webservers, nginxservers
+  gather_facts: false
+  tasks:
+    - name: Wait for SSH to become available
+      ansible.builtin.wait_for_connection:
+        delay: 10
+        timeout: 120
+
+- name: Configure DNS
+  hosts: dns_servers
   become: true
-
-  vars_prompt:
-
-    # Variables for DNS Server
-    - name: binddns_dns_domain
-      prompt: "Enter the domain for the DNS"
-      private: false
-      default: "domain.example"
-
-    - name: binddns_dns_network
-      prompt: "Enter the network address"
-      private: false
-      default: "192.168.0.0"
-
-    # Variables for MariaDB Database
-    - name: mariadb_db_name
-      prompt: " Input a name for the new database"
-      private: false
-      default: "{{ mariadb_db_name }}"
-
-    - name: mariadb_db_username
-      prompt: " Choose a username for the new database"
-      private: false
-      default: "{{ mariadb_db_username }}"
-
-    - name: mariadb_db_password
-      prompt: " Select a password for the user"
-      private: false
-      default: "{{ mariadb_db_password }}"
-
-    # Variables for Apache webserver
-    # Sets a domain admin, this user can/should also be used for SFTP setup
-    - name: httpd_domain_admin
-      prompt: " Enter the username for the domain admin"
-      private: false
-      default: "{{ httpd_domain_admin }}"
-
-    # Set password required for SFTP service later on, by the remote admin.
-    - name: httpd_domain_admin_password
-      prompt: " Enter the password you want for SFTP"
-      private: true
-      confirm: true
-
-    # Sets a domain name for the service
-    - name: httpd_domain_name
-      prompt: "Enter the domain name"
-      private: false
-      default: "{{ httpd_domain_name }}"
-
-    # Set DB username from the database. Or comment out and change in /roles/vars/main.yml
-    - name: httpd_db_username
-      prompt: " Enter the username for the DB user"
-      private: false
-      default: "{{ httpd_db_username }}"
-
-    # Set DB password from the database. Or comment out and change in /roles/vars/main.yml
-    - name: httpd_db_password
-      prompt: " Enter the password for the DB"
-      private: false
-      default: "{{ httpd_db_password }}"
-
-    - name: httpd_db_name
-      prompt: " Enter the database name"
-      private: false
-      default: "{{ httpd_db_name }}"
-
-  vars:
-    binddns_dns_reverse_zone: >-
-      {{ binddns_dns_network.split('.')[:3] | reverse | join('.') }}.in-addr.arpa
-
   roles:
     - binddns
+
+- name: Configure Database
+  hosts: dbservers
+  become: true
+  roles:
     - mariadb
+
+- name: Configure Webserver
+  hosts: webservers
+  become: true
+  roles:
     - httpd
+
+- name: Configure Reverse Proxy
+  hosts: nginxservers
+  become: true
+  roles:
     - nginx

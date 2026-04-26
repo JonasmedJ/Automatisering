@@ -11,13 +11,6 @@
   ansible.builtin.systemd:
     name: httpd
     state: reloaded
-    enabled: true
-
-- name: SELinux-httpd
-  ansible.posix.seboolean:
-    name: httpd_can_network_connect
-    state: true
-    persistent: true
 
 - name: Domain-Enabled
   ansible.builtin.file:

@@ -1,5 +1,9 @@
-# IP Addresses for VM's in Proxmox
+---
+# ============================================================
+# LAMP Stack VM configurations
+# ============================================================
 
+<<<<<<< HEAD
 pve_vm_network: 192.168.0.0
 
 pve_vm_gw: 192.168.0.1
@@ -18,35 +22,62 @@ pve_vm_vms:
   - name: 'Rocky-DNS01'
     vmid: 102
     ip: "{{ pve_vm_dns }}"
+=======
+# ____ Configurations for Proxmox VMs ____
+pve_vm_vms:
+  - name: 'Rocky-DNS01'
+    vmid: 200
+    ip: "{{ pve_ip_dns }}"
+    cpu: x86-64-v3
+>>>>>>> 037f876fe6c40c647f38f7f55fcb8576c3ebd03c
     cores: 2
     memory: 4096
     nameserver:
-      - "{{ pve_vm_dns }}"
+      - "{{ pve_ip_dns }}"
       - '1.1.1.1'
 
   - name: 'Rocky-MariaDB01'
+<<<<<<< HEAD
     vmid: 103
     ip: "{{ pve_vm_mariadb }}"
+=======
+    vmid: 201
+    ip: "{{ pve_ip_mariadb }}"
+    cpu: x86-64-v3
+>>>>>>> 037f876fe6c40c647f38f7f55fcb8576c3ebd03c
     cores: 4
     memory: 8192
     nameserver:
-      - "{{ pve_vm_dns }}"
+      - "{{ pve_ip_dns }}"
       - '1.1.1.1'
 
   - name: 'Rocky-Apache01'
+<<<<<<< HEAD
     vmid: 104
     ip: "{{ pve_vm_httpd }}"
+=======
+    vmid: 202
+    ip: "{{ pve_ip_httpd }}"
+    cpu: x86-64-v3
+>>>>>>> 037f876fe6c40c647f38f7f55fcb8576c3ebd03c
     cores: 2
     memory: 4096
     nameserver:
-      - "{{ pve_vm_dns }}"
+      - "{{ pve_ip_dns }}"
       - '1.1.1.1'
 
+<<<<<<< HEAD
   - name: 'Rocky-nginx01'
     vmid: 105
     ip: "{{ pve_vm_nginx }}"
+=======
+  - name: 'Rocky-Nginx01'
+    vmid: 203
+    ip: "{{ pve_ip_nginx }}"
+    cpu: x86-64-v3
+>>>>>>> 037f876fe6c40c647f38f7f55fcb8576c3ebd03c
     cores: 2
     memory: 4096
     nameserver:
-      - "{{ pve_vm_dns }}"
+      - "{{ pve_ip_dns }}"
       - '1.1.1.1'

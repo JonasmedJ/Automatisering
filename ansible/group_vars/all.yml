@@ -1,8 +1,62 @@
 ---
+# ============================================================
+# LAMP Stack configurations
+# ============================================================
+
+# ____ Common credentials [modify as needed] ____
+default_password: _your_secure_password_here_
+ssh_pub_key: _your_ssh_public_key_here_
 ubuntu_user: ubuntu
+rocky_user: rocky
+ssh_key: _replace_with_your_ssh_public_key_here_
 
-rocky_user: root
 
-all_pw: Kode1234!
+# ____ Proxmox Ansible Connection [modify as needed] ____
+pve_api_host: _pve_IP_address_here_
+pve_api_user: root@pam
+pve_api_node: pve
+pve_api_password: _Insert_secure_password_here_
 
-ssh_key: nothing
+
+# ____ LAN Network [modify as needed] ____
+pve_network: 192.168.0.0
+pve_subnet: 24
+pve_gateway: 192.168.0.1
+pve_search_domain: _domain.example_
+
+
+# ____ BIND DNS Configuration [modify as needed] ____
+binddns_dns_domain: "{{ pve_search_domain }}"
+binddns_dns_network: "{{ pve_network }}"
+
+
+# ____ MariaDB Configuration [modify as needed] ____
+mariadb_db_name: wp01
+mariadb_db_username: wpuser
+mariadb_db_password: Kode1234!
+mariadb_db_root_password: Kode1234!
+mariadb_allowed_hosts:
+  - "{{ pve_ip_httpd }}"
+
+
+# ____ Apache Configuration [modify as needed] ____
+httpd_domain_name: "{{ pve_search_domain }}"
+httpd_domain_admin: "{{ pve_search_domain.split('.')[0] }}admin"
+httpd_domain_admin_password: "{{ default_password }}"
+httpd_db_name: "{{ mariadb_db_name }}"
+httpd_db_username: "{{ mariadb_db_username }}"
+httpd_db_password: "{{ mariadb_db_password }}"
+
+
+# ____ Nginx Configuration [modify as needed] ____
+nginx_domain_name: "{{ pve_search_domain }}"
+nginx_upstream_ip: "{{ pve_ip_httpd }}"
+nginx_resolver_ip: "{{ pve_ip_dns }}"
+nginx_ca_passphrase: "{{ default_password }}"
+
+
+# ____ VM IPs  [Do not modify!] ____
+pve_ip_dns: "{{ hostvars['Rocky-DNS01']['ansible_host'] }}"
+pve_ip_mariadb: "{{ hostvars['Rocky-MariaDB01']['ansible_host'] }}"
+pve_ip_httpd: "{{ hostvars['Rocky-Apache01']['ansible_host'] }}"
+pve_ip_nginx: "{{ hostvars['Rocky-Nginx01']['ansible_host'] }}"

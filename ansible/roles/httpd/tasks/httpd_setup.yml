@@ -25,6 +25,27 @@
     state: present
   notify: Httpd-reload
 
+- name: Enable and start httpd
+  ansible.builtin.systemd:
+    name: httpd
+    state: started
+    enabled: true
+
+
+- name: Enable and start firewalld
+  ansible.builtin.systemd:
+    name: firewalld
+    state: started
+    enabled: true
+
+
+- name: Allow httpd to make network connections (SELinux)
+  ansible.posix.seboolean:
+    name: httpd_can_network_connect
+    state: true
+    persistent: true
+
+
 - name: Create httpd enabled and available sites in /etc
   ansible.builtin.file:
     path: "{{ item }}"
@@ -70,6 +91,7 @@
   notify:
     - Domain-Enabled
     - Httpd-reload
+
 
 - name: Download Wordpress from GitHub
   ansible.builtin.get_url:

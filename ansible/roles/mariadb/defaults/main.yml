@@ -2,6 +2,7 @@
 ---
 # defaults file for roles/mariadb
 
+<<<<<<< HEAD
 mariadb_db_name: wp01
 
 mariadb_db_username: wpuser
@@ -11,3 +12,7 @@ mariadb_db_password: Kode1234!
 mariadb_db_root_password: Kode1234!
 
 pve_vm_httpd: 192.168.0.158
+=======
+mariadb_allowed_hosts:
+  - "{{ pve_ip_httpd }}"
+>>>>>>> 037f876fe6c40c647f38f7f55fcb8576c3ebd03c

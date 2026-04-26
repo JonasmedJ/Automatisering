@@ -4,14 +4,14 @@
 
 - name: Create new VM using cloud-init with a username and password
   community.proxmox.proxmox_kvm:
-    node: pve
-    api_user: root@pam
-    api_password: "{{ all_pw }}"
-    api_host: 10.101.8.107
+    node: "{{ pve_api_node }}"
+    api_user: "{{ pve_api_user }}"
+    api_password: "{{ pve_api_password }}"
+    api_host: "{{ pve_api_host }}"
     agent: true
     name: "{{ item.name }}"
     vmid: "{{ item.vmid }}"
-    cpu: x86-64-v3
+    cpu: "{{ item.cpu }}"
     cores: "{{ item.cores }}"
     memory: "{{ item.memory }}"
     scsihw: virtio-scsi-pci
@@ -20,25 +20,29 @@
       scsi0: 'local-lvm:0,import-from=/root/Rocky-10-GenericCloud-Base.latest.x86_64.qcow2'
     ide:
       ide2: 'local-lvm:cloudinit'
-    ciuser: rocky
-    cipassword: "{{ all_pw }}"
+    ciuser: "{{ rocky_user }}"
+    cipassword: "{{ default_password }}"
     # Use ansible controller SSH keys
     sshkeys: "{{ lookup('file', '~/.ssh/id_ed25519.pub') }}"
-    searchdomains: 'domain.local'
+    searchdomains: "{{ pve_search_domain }}"
     nameservers: "{{ item.nameserver }}"
     net:
       net0: 'virtio,bridge=vmbr1'
     ipconfig:
-      ipconfig0: 'ip={{ item.ip }}/24,gw={{ pve_vm_gw }}'
+      ipconfig0: "ip={{ item.ip }}/{{ pve_subnet }},gw={{ pve_gateway }}"
   # Run modules with ansible controller, instead of installing on PVE host
   delegate_to: localhost
   loop: "{{ pve_vm_vms }}"
 
+<<<<<<< HEAD
 - name: Start the VM
+=======
+- name: Start the VMs
+>>>>>>> 037f876fe6c40c647f38f7f55fcb8576c3ebd03c
   community.proxmox.proxmox_kvm:
-    api_user: root@pam
-    api_password: "{{ all_pw }}"
-    api_host: 10.101.8.107
+    api_user: "{{ pve_api_user }}"
+    api_password: "{{ pve_api_password }}"
+    api_host: "{{ pve_api_host }}"
     vmid: "{{ item.vmid }}"
     state: started
   delegate_to: localhost
@@ -59,19 +63,21 @@
   become: true
   loop: "{{ pve_vm_vms }}"
   vars:
-    ansible_user: rocky
+    ansible_user: "{{ rocky_user }}"
+    ansible_become_pass: "{{ default_password }}"
   tags: skip_ansible_lint
 
-- name: Set Danish keyboard layout
+- name: Set Danish Timezone
   ansible.builtin.command: timedatectl set-timezone Europe/Copenhagen
   delegate_to: "{{ item.ip }}"
   become: true
   loop: "{{ pve_vm_vms }}"
   vars:
-    ansible_user: rocky
+    ansible_user: "{{ rocky_user }}"
+    ansible_become_pass: "{{ default_password }}"
   tags: skip_ansible_lint
 
-- name: Add rocky to sudo wheel
+- name: Add rocky user to sudo wheel
   ansible.builtin.user:
     name: rocky
     groups: wheel
@@ -80,7 +86,12 @@
   become: true
   loop: "{{ pve_vm_vms }}"
   vars:
+<<<<<<< HEAD
     ansible_user: rocky
+=======
+    ansible_user: "{{ rocky_user }}"
+    ansible_become_pass: "{{ default_password }}"
+>>>>>>> 037f876fe6c40c647f38f7f55fcb8576c3ebd03c
 
 - name: Install packages not included in cloud image (Firewalld, zip, vim)
   ansible.builtin.dnf:
@@ -91,10 +102,15 @@
       - vim
       - git
       - bash-completion
+<<<<<<< HEAD
       - wget
+=======
+>>>>>>> 037f876fe6c40c647f38f7f55fcb8576c3ebd03c
     state: present
   delegate_to: "{{ item.ip }}"
+  become: true
   loop: "{{ pve_vm_vms }}"
+<<<<<<< HEAD
   become: true
   vars:
     ansible_user: rocky
@@ -135,3 +151,8 @@
   vars:
     ansible_user: rocky
     ansible_become_pass: "{{ all_pw }}"
+=======
+  vars:
+    ansible_user: "{{ rocky_user }}"
+    ansible_become_pass: "{{ default_password }}"
+>>>>>>> 037f876fe6c40c647f38f7f55fcb8576c3ebd03c

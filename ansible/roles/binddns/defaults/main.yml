@@ -2,11 +2,6 @@
 ---
 # defaults file for roles/binddns
 
-# Domain Configuration
-binddns_dns_domain: "domain.example"
-binddns_dns_reverse_zone: "0.168.192.in-addr.arpa"
-binddns_dns_network: "192.168.0.0"
-
 # DNS Service name
 binddns_bind_service: "named"
 

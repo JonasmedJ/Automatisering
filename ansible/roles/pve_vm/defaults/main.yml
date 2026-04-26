@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-only
 ---
+<<<<<<< HEAD
 # defaults file for roles/proxmox_vm_template
 
 
@@ -55,3 +56,6 @@ pve_vm_vms:
     nameserver:
       - "{{ pve_vm_dns }}"
       - '1.1.1.1'
+=======
+# All VM configuration is defined in group_vars/all.yml and group_vars/pve_vm.yml
+>>>>>>> 037f876fe6c40c647f38f7f55fcb8576c3ebd03c
